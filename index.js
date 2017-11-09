@@ -11,34 +11,28 @@ const slugify = (text) =>
 
 const dir = `${process.env.HOME}/Pictures/nat-geo`;
 
-if (!fs.existsSync(dir)){
+if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 }
 
 axios.get("https://www.nationalgeographic.com/photography/photo-of-the-day/_jcr_content/.gallery.json")
-    .then(res => {
-        const lastPublication = res.data.items
-            .sort((item1, item2) =>
-                new Date(item2.publishDate) - new Date(item1.publishDate)
-            )[0];
-
-        const biggest = Object.keys(lastPublication.sizes)
-            .sort((item1, item2) => parseInt(item2) - parseInt(item1))[0];
-
-        const imageUrl = `${lastPublication.url}${lastPublication.sizes[biggest]}`;
-        
-        axios.get(imageUrl, {
-            responseType: 'arraybuffer'
-        })
-            .then(response => fs.writeFile(`${dir}/${new Date(lastPublication.publishDate).toLocaleDateString()}-${slugify(lastPublication.title)}.jpeg`, response.data, 'binary', err => {
-                if (err)
-                    throw err;
-                console.log('File saved.')
-            }))
-            .catch(res => console.log(res))
-    })
+    .then(res => res.data.items
+        .sort((item1, item2) => new Date(item2.publishDate) - new Date(item1.publishDate))[0]
+    )
+    .then(latest => ({
+        latest,
+        biggest: Object.keys(latest.sizes)
+            .sort((item1, item2) => parseInt(item2) - parseInt(item1))[0]
+    }))
+    .then(({ latest, biggest }) => ({
+        imageUrl: `${latest.url}${latest.sizes[biggest]}`,
+        filename: `${dir}/${new Date(latest.publishDate).toLocaleDateString()}-${slugify(latest.title)}.jpeg`,
+    }))
+    .then(({ imageUrl, filename }) => axios
+        .get(imageUrl, { responseType: 'arraybuffer' })
+        .then(res => fs.writeFile(filename, res.data, 'binary', e => { }))
+        .catch(reason => console.log(reason))
+    )
     .catch(res => {
         console.log(res);
     });
-
-console.log('====');
