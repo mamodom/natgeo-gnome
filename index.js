@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
+const exec = require('child_process').exec;
 
 const slugify = (text) =>
     text.toString().toLowerCase()
@@ -31,8 +32,14 @@ axios.get("https://www.nationalgeographic.com/photography/photo-of-the-day/_jcr_
     .then(({ imageUrl, filename }) => axios
         .get(imageUrl, { responseType: 'arraybuffer' })
         .then(res => fs.writeFile(filename, res.data, 'binary', e => { }))
-        .catch(reason => console.log(reason))
+        .then(_ => filename)
+        .catch(reason => console.error(reason))
     )
+    .then( filename => {
+        console.log(filename)
+        exec(`gsettings set org.gnome.desktop.background picture-uri file://${filename}`)
+        exec(`gsettings set org.gnome.desktop.screensaver picture-uri file://${filename}`)
+    })
     .catch(res => {
-        console.log(res);
+        console.error(res);
     });
