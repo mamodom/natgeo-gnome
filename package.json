@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node index.js"
   },
+  "bin": {
+    "natgeo-wp": "./index.js"
+  },
   "author": "mamodom",
   "license": "ISC",
   "dependencies": {
