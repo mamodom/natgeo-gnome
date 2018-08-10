@@ -27,7 +27,7 @@ axios.get("https://www.nationalgeographic.com/photography/photo-of-the-day/_jcr_
             .sort((item1, item2) => parseInt(item2) - parseInt(item1))[0]
     }))
     .then(({ latest, biggest }) => ({
-        imageUrl: `${latest.url}${latest.sizes[biggest]}`,
+        imageUrl: latest.sizes[biggest],
         filename: `${dir}/${new Date(latest.publishDate).toLocaleDateString()}-${slugify(latest.title)}.jpeg`,
     }))
     .then(({ imageUrl, filename }) => axios
