@@ -2,6 +2,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const exec = require('child_process').exec;
+const moment = require('moment');
 
 const slugify = text =>
   text
@@ -44,9 +45,9 @@ axios
   })
   .then(({ latest, biggest }) => ({
     imageUrl: latest.sizes[biggest],
-    filename: `${dir}/${new Date(
-      latest.publishDate
-    ).toLocaleDateString()}-${slugify(latest.title)}.jpeg`,
+    filename: `${dir}/${moment(new Date(latest.publishDate)).format(
+      'YYYY-MM-DD'
+    )}-${slugify(latest.title)}.jpeg`,
   }))
   .then(({ imageUrl, filename }) =>
     axios
